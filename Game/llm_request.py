@@ -14,7 +14,7 @@ def make_prompt(user_message, objects, player, mouton, inventory):
     print(f"Player: {player}")
     print(f"Mouton: {mouton}")
     print({len(inventory)})
-    prompt = f"""Tu es un fermier qui a pour but d'empêcher le mouton de manger les fruits sur le terrain. Pour cela, tu peux enlever les fruits qui sont sur le chemin du mouton.
+    prompt = f"""Tu es un fermier qui a pour but d'empêcher le mouton de manger les fruits sur le terrain. Pour cela, tu peux enlever les fruits qui sont sur le chemin du mouton ou tuer le mouton en empoisonnant les fruits proche de lui.
 
    Voici l'environnement dans lequel tu te trouves :
    - Tu es dans une grille de 15*15
@@ -22,7 +22,11 @@ def make_prompt(user_message, objects, player, mouton, inventory):
    - Tu peux te déplacer dans n'importe quelle case de cette grille . Pour cela tu peux utiliser la commande : MOVE X,Y . X allant entre 0 et 14 et Y allant entre 0 et 14.
    - Tu peux prendre une pomme dans ton inventaire avec la commande : PICK
    - Tu peux déposer un fruit au sol si tu as un fruit dans ton inventaire et que la case où tu te situe est vide en utilisant la commande : DROP
-   - Ton inventaire peut contenir 3 fruits MAXIMUM, si tu prends un fruit alors que tu en as 3 dans ton inventaire, tu vas ramasser un fruit et en déposer un de ton inventaire
+   - Tu peux empoisonner un fruit au sol pour faire des dégats au mouton en utilisant la commande : POISON
+   - Ton inventaire peut contenir 3 fruits MAXIMUM : tu ne peux plus prendre de fruit si tu en as déjà 3 dans ton inventaire. Tu dois alors déposer un fruit de ton inventaire le plus loin du mouton et ensuite ramasser les fruits les plus proches du mouton.
+   - Le mouton a 3 vies au maximum.
+    
+    Empoisonner les fruits est conseillé ! 
 
    Je te donne les instructions suivantes en entrée :
    - La grille de jeu et la position des différents fruits : {objects}

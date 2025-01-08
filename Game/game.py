@@ -15,7 +15,9 @@ class CookoBot(arcade.Window):
         self.player = None
         self.mouton = None
         self.inventory = []
-        self.objects = ['Banane', 'Pomme', 'Poire']
+        self.baseObjects = ['Banane', 'Pomme', 'Poire']
+        self.objects = ['Banane', 'Pomme', 'Poire', 'Banane_Pourri', 'Poire_Pourri', 'Pomme_Pourri']
+        self.pourri = ['Banane_Pourri', 'Poire_Pourri', 'Pomme_Pourri']
         self.actions_stack = []
         self.items_on_map = {}
         self.path = []  # Chemin calculé
@@ -40,6 +42,11 @@ class CookoBot(arcade.Window):
         drop_button = arcade.gui.UIFlatButton(text="Déposer", width=BUTTON_WIDTH, style=BUTTON_MAUVE)
         drop_button.on_click = self.action_drop
         self.action_box.add(drop_button)
+
+        # Créer le bouton de poison
+        p_button = arcade.gui.UIFlatButton(text="Empoisonner", width=BUTTON_WIDTH, style=BUTTON_MAUVE)
+        p_button.on_click = self.action_poison
+        self.action_box.add(p_button)
 
         # Créer la zone de texte
         self.text_input = arcade.gui.UIInputText(height=INSTRUCTION_TEXT_HEIGHT, width=INSTRUCTION_TEXT_WIDTH,
@@ -75,14 +82,17 @@ class CookoBot(arcade.Window):
         self.player = {'x': x_start, 'y': y_start}  # Position initiale du personnage
         x_start_mouton = random.randint(0, NB_TILES - 1)
         y_start_mouton = random.randint(0, NB_TILES - 1)
-        self.mouton = {'x': x_start_mouton, 'y': y_start_mouton}  # Position initiale du personnage
+        self.mouton = {'x': x_start_mouton, 'y': y_start_mouton, 'lives' : 3}  # Position initiale du personnage
 
         # Chargement des textures
         self.player_texture = arcade.load_texture("images/berger.png")
         self.fruit_textures = {
             'Banane': arcade.load_texture("images/banane.png"),
             'Pomme': arcade.load_texture("images/pomme.png"),
-            'Poire': arcade.load_texture("images/poire.png")
+            'Poire': arcade.load_texture("images/poire.png"),
+            'Pomme_Pourri': arcade.load_texture("images/pomme_pourri.png"),
+            'Poire_Pourri': arcade.load_texture("images/poire_pourri.png"),
+            'Banane_Pourri': arcade.load_texture("images/poire_pourri.png"),
         }
         self.mouton_texture = arcade.load_texture("images/mouton.png")
 
@@ -90,7 +100,7 @@ class CookoBot(arcade.Window):
         for _ in range(NB_OBJ):  # NB_OBJ objects aléatoires
             x = random.randint(0, NB_TILES - 1)
             y = random.randint(0, NB_TILES - 1)
-            fruit = random.choice(self.objects)
+            fruit = random.choice(self.baseObjects)
             self.items_on_map[(x, y)] = fruit
 
         arcade.schedule(self.move_sheep_towards_fruit, MOVE_DELAY_SHEEP)
@@ -290,6 +300,30 @@ class CookoBot(arcade.Window):
             self.action_count += 1  # Incrémente le compteur d'actions
         self.execute_stack()
 
+    def action_poison(self, event=None):
+        """Empoisonne un fruit sur la carte. Si l'inventaire est plein, dépose l'objet le plus ancien.
+        
+        Args:
+            event (arcade.gui.UIEvent): Événement de l'interface utilisateur.
+        """
+        # Vérifie si le joueur est sur une case avec un objet
+        current_pos = (self.player['x'], self.player['y'])
+        if current_pos in self.items_on_map:
+            item = self.items_on_map[current_pos]
+            match item:
+                case 'Banane':
+                    fruit = 'Banane_Pourri'
+                case 'Pomme':
+                    fruit = 'Pomme_Pourri'
+                case 'Poire':
+                    fruit = 'Poire_Pourri'
+                case _:
+                    fruit = item
+            self.items_on_map[current_pos] = fruit # Le déposer sur la carte
+
+            self.action_count += 1  # Incrémente le compteur d'actions
+        self.execute_stack()
+
 
 
     def action_drop(self, event=None):
@@ -327,6 +361,7 @@ class CookoBot(arcade.Window):
             'PICK': self.action_pick,
             'DROP': self.action_drop,
             'MOVE': self.action_move,
+            'POISON': self.action_poison
         }
 
         # Extrait l'action et les coordonnées de l'entrée utilisateur
@@ -423,20 +458,30 @@ class CookoBot(arcade.Window):
         return closest_fruit
 
     def move_sheep_towards_fruit(self, delta_time):
-        closest_fruit = self.find_closest_fruit()
-        if closest_fruit:
-            goal_x, goal_y = closest_fruit
+        if(self.mouton['lives'] > 0):
+            closest_fruit = self.find_closest_fruit()
+            if closest_fruit:
+                goal_x, goal_y = closest_fruit
 
-            # Calculate path to the closest fruit
-            self.path_mouton = self.a_star(self.mouton['x'], self.mouton['y'], goal_x, goal_y)
-            if self.path_mouton:
-                # Move sheep along the path
-                next_step = self.path_mouton.pop(0)
-                self.mouton['x'], self.mouton['y'] = next_step
+                # Calculate path to the closest fruit
+                self.path_mouton = self.a_star(self.mouton['x'], self.mouton['y'], goal_x, goal_y)
+                if self.path_mouton:
+                    # Move sheep along the path
+                    next_step = self.path_mouton.pop(0)
+                    self.mouton['x'], self.mouton['y'] = next_step
 
-                # If the sheep reaches the fruit, remove it from the map
-                if (self.mouton['x'], self.mouton['y']) == closest_fruit:
-                    del self.items_on_map[closest_fruit]
+                    # If the sheep reaches the fruit, remove it from the map
+                    if (self.mouton['x'], self.mouton['y']) == closest_fruit:
+                        print(self.items_on_map[closest_fruit])
+                        print(self.pourri)
+                        if self.items_on_map[closest_fruit] in self.pourri:
+                            self.mouton['lives'] -= 1
+                        if self.mouton['lives'] <= 0:
+                            print("Game Over!")
+                        print(self.mouton['lives'])
+                        del self.items_on_map[closest_fruit]
+        else : 
+            arcade.unschedule(self.move_sheep_towards_fruit, MOVE_DELAY_SHEEP)
 
 
 if __name__ == "__main__":
