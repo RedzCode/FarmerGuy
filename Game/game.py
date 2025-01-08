@@ -477,7 +477,7 @@ class CookoBot(arcade.Window):
                         if self.items_on_map[closest_fruit] in self.pourri:
                             self.mouton['lives'] -= 1
                         if self.mouton['lives'] <= 0:
-                            print("Game Over!")
+                            print("Kebab est mort!")
                         print(self.mouton['lives'])
                         del self.items_on_map[closest_fruit]
         else : 

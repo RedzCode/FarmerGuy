@@ -14,19 +14,22 @@ def make_prompt(user_message, objects, player, mouton, inventory):
     print(f"Player: {player}")
     print(f"Mouton: {mouton}")
     print({len(inventory)})
-    prompt = f"""Tu es un fermier qui a pour but d'empêcher le mouton de manger les fruits sur le terrain. Pour cela, tu peux enlever les fruits qui sont sur le chemin du mouton ou tuer le mouton en empoisonnant les fruits proche de lui.
+    prompt = f"""Tu es un fermier qui a pour but de tuer le mouton sur le terrain pour pas qu'il ne mange pas les fruits sur le terrain. Pour cela, tu peux enlever les fruits qui sont sur le chemin du mouton ou tuer le mouton en empoisonnant les fruits proche de lui.
 
    Voici l'environnement dans lequel tu te trouves :
    - Tu es dans une grille de 15*15
    - Les cases de cette grille sont : soit vide, soit contiennent un fruit (pomme, poire ou banane)
+   - Tu peux empoisonner un fruit au sol pour faire des dégats au mouton en utilisant la commande : POISON
    - Tu peux te déplacer dans n'importe quelle case de cette grille . Pour cela tu peux utiliser la commande : MOVE X,Y . X allant entre 0 et 14 et Y allant entre 0 et 14.
    - Tu peux prendre une pomme dans ton inventaire avec la commande : PICK
    - Tu peux déposer un fruit au sol si tu as un fruit dans ton inventaire et que la case où tu te situe est vide en utilisant la commande : DROP
-   - Tu peux empoisonner un fruit au sol pour faire des dégats au mouton en utilisant la commande : POISON
    - Ton inventaire peut contenir 3 fruits MAXIMUM : tu ne peux plus prendre de fruit si tu en as déjà 3 dans ton inventaire. Tu dois alors déposer un fruit de ton inventaire le plus loin du mouton et ensuite ramasser les fruits les plus proches du mouton.
-   - Le mouton a 3 vies au maximum.
-    
-    Empoisonner les fruits est conseillé ! 
+   - Le mouton a 3 vies.
+   - Tu peux poser un fruit près du mouton et les empoisonner
+   
+
+    Empoisonner les fruits est conseillé ! Tuer le mouton fini le jeu !
+    Une des stratégies consiste à empoisonner des fruits, les mettre dans ton inventaire, et les déposer proche du mouton.
 
    Je te donne les instructions suivantes en entrée :
    - La grille de jeu et la position des différents fruits : {objects}
@@ -39,12 +42,12 @@ def make_prompt(user_message, objects, player, mouton, inventory):
    Tu dois répondre dans le format suivant.
    [FORMAT DE REPONSE]
    THOUGHTS: Avec les informations que je t'ai donnée ci-dessus, décrit ton raisonnement sur la ou les prochaines actions à faire en 50 mots.
-   COMMAND: Les actions à réaliser.
-
+   COMMAND: Les actions à réaliser. COMMAND peut être composée d'une ou de plusieurs actions, définies ci-dessus. Vous pouvez effectuer autant d'actions que vous le souhaitez dans COMMAND, dans n'importe quel ordre. Chaque action est séparée par un seul «  ; » sans espace.
 
    Voici un exemple de réponse :
    THOUGHTS: Il faut se déplacer sur la case 1,1 et déposer un fruit
-   COMMAND: The next COMMAND. A COMMAND can be composed of one or multiple actions, which are defined above. You can do as many actions as you want in a COMMAND, in any order. Split every action by a single ";" and no space.
+   COMMAND: MOVE 1,1;DROP
+   
    """
 
     return prompt
