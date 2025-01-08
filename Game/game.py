@@ -352,8 +352,9 @@ class CookoBot(arcade.Window):
             actions[action]()
         else:
             print(f"Erreur: Action {action} non valide")
-            time.sleep(3)
-            self.send_instruction()
+            if self.llm_activated:
+                time.sleep(3)
+                self.send_instruction()
             return None
 
     def send_instruction(self, event=None):
@@ -406,8 +407,9 @@ class CookoBot(arcade.Window):
             self.do_action(action)
         else :
             print("Stack vide")
-            time.sleep(3)
-            self.send_instruction()
+            if self.llm_activated:
+                time.sleep(3)
+                self.send_instruction()
             return None
         
     def find_closest_fruit(self):
