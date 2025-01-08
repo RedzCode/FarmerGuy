@@ -25,6 +25,8 @@ class CookoBot(arcade.Window):
         self.inventory = deque(maxlen=INVENTORY_SIZE)  # Inventaire limité à 3 objets
         self.llm_activated = True
 
+        self.path_mouton = []  # Chemin calculé mouton
+
         # Create a horizontale BoxGroup to align buttons
         self.action_box = arcade.gui.UIBoxLayout(vertical=False, x=MENU_X, y=INVENTORY_BUTTON_Y)
         self.chat_box = arcade.gui.UIBoxLayout(vertical=True, x=INSTRUCTION_TEXT_X, y=INSTRUCTION_TEXT_Y)
@@ -41,7 +43,7 @@ class CookoBot(arcade.Window):
 
         # Créer la zone de texte
         self.text_input = arcade.gui.UIInputText(height=INSTRUCTION_TEXT_HEIGHT, width=INSTRUCTION_TEXT_WIDTH,
-            text_color=arcade.color.MAUVE_TAUPE, font_size=14, text="Attrape une pomme !", multiline=True)
+            text_color=arcade.color.MAUVE_TAUPE, font_size=14, text="Commence !", multiline=True)
         self.chat_box.add(self.text_input)
 
         # Créer le bouton d'envoi
@@ -90,7 +92,9 @@ class CookoBot(arcade.Window):
             y = random.randint(0, NB_TILES - 1)
             fruit = random.choice(self.objects)
             self.items_on_map[(x, y)] = fruit
-        
+
+        self.send_instruction
+        arcade.schedule(self.move_sheep_towards_fruit, MOVE_DELAY_SHEEP)
 
     def on_draw(self):
         """Rendu de l'écran."""
@@ -236,19 +240,6 @@ class CookoBot(arcade.Window):
 
         return None  # Aucun chemin trouvé
 
-
-
-
-
-
-
-
-
-
-
-
-
-
     def move_along_path(self, delta_time):
         """Déplace le personnage d'une case le long du chemin calculé."""
         # Vérifie si le chemin n'est pas terminé
@@ -266,9 +257,6 @@ class CookoBot(arcade.Window):
             arcade.unschedule(self.move_along_path)  # Arrête la planification lorsque le déplacement est terminé
             self.execute_stack()
             
-
-
-    
 
     def action_move(self, event=None):
         """Lance le déplacement du personnage vers une destination spécifiée.
@@ -380,7 +368,7 @@ class CookoBot(arcade.Window):
             action = ""
             try:
                 # Demande au LLM de produire la commande
-                prompt = make_prompt(self.text_input.text, self.items_on_map, self.player)
+                prompt = make_prompt(self.text_input.text, self.items_on_map, self.player, self.mouton)
                 answer = make_request(prompt)
                 print("--> REPONSE DU LLM\n" + answer)
                 thoughts, action = extract_thoughts_and_command(answer)
@@ -417,11 +405,38 @@ class CookoBot(arcade.Window):
             self.do_action(action)
         else :
             print("Stack vide")
+            self.send_instruction
             return None
+        
+    def find_closest_fruit(self):
+        closest_fruit = None
+        min_distance = float('inf')
+        for (x, y), fruit in self.items_on_map.items():
+            distance = abs(self.mouton['x'] - x) + abs(self.mouton['y'] - y)  # Manhattan distance
+            if distance < min_distance:
+                min_distance = distance
+                closest_fruit = (x, y)
+        return closest_fruit
+
+    def move_sheep_towards_fruit(self, delta_time):
+        closest_fruit = self.find_closest_fruit()
+        if closest_fruit:
+            goal_x, goal_y = closest_fruit
+
+            # Calculate path to the closest fruit
+            self.path_mouton = self.a_star(self.mouton['x'], self.mouton['y'], goal_x, goal_y)
+            if self.path_mouton:
+                # Move sheep along the path
+                next_step = self.path_mouton.pop(0)
+                self.mouton['x'], self.mouton['y'] = next_step
+
+                # If the sheep reaches the fruit, remove it from the map
+                if (self.mouton['x'], self.mouton['y']) == closest_fruit:
+                    del self.items_on_map[closest_fruit]
 
 
 if __name__ == "__main__":
     window = CookoBot()
     window.setup()
-    print('Bienvenue dans CookoBot !')
+    print('Bienvenue dans FarmerBot !')
     arcade.run()

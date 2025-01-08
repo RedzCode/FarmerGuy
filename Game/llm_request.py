@@ -7,41 +7,39 @@ import time
 # Load the .env file
 dotenv = load_dotenv()
 
-def make_prompt(user_message, objects, player):
+def make_prompt(user_message, objects, player, mouton):
     # Create a prompt
     print(f"User message: {user_message}")
     print(f"Objects: {objects}")
     print(f"Player: {player}")
-    prompt = f"""
-    You are a cooking assisstant in charge of picking and dropping ingredients at various places in a 15x15 map.
-    Those are some tips for the game:
-1/ The map is composed of cells on an orthogonal grid. Each cell can be occupied only by one agent, target or obstacle.
-2/ The bottom left corner of the map is the position (0,0). The x-axis is horizontal and the y-axis is vertical.
+    print(f"Mouton: {mouton}")
+    prompt = f"""Tu es un fermier qui a pour but d'empêcher le mouton de manger les fruits sur le terrain. Pour cela, tu peux enlever les fruits qui sont sur le chemin du mouton.
 
-Each object will be given through a tuple of 3 elements: (name, x, y). For example, ("apple", 1, 2) means that there is an apple at position (1, 2).
-The Objects are located at the following positions:
-{objects}
-The player is located at the following x and y positions:
-{player}
+   Voici l'environnement dans lequel tu te trouves :
+   - Tu es dans une grille de 15*15
+   - Les cases de cette grille sont : soit vide, soit contiennent un fruit (pomme, poire ou banane)
+   - Tu peux te déplacer dans n'importe quelle case de cette grille . Pour cela tu peux utiliser la commande : MOVE X,Y . X allant entre 0 et 14 et Y allant entre 0 et 14.
+   - Tu peux prendre une pomme dans ton inventaire avec la commande : PICK
+   - Tu peux déposer un fruit au sol si tu as un fruit dans ton inventaire et que la case où tu te situe est vide en utilisant la commande : DROP
 
-    You have access to three ACTIONS: "PICK", "DROP", "MOVE x,y".
-    1/ "PICK": Pick up an object at the current position and stacks it on the player's inventory.
-    2/ "DROP": Drop the last object in the stack created by the PICK action at the current position and removes it from the inventory.
-    3/ "MOVE x,y": Move the player to a new position on the map. The new position is defined by the x and y coordinates.
-    4/ It is IMPOSSIBLE to place multiple objects at the same place. You can't drop an object where one is already placed.
-    
-    We define a "fruit salad" as 3 differents objects placed next to each other, in a row. The objects do not have to be placed in a precise order, but they have to be placed in a row.
-    The position of a fruit salade is defined by the position of the first object in the row.
-    
-    Here is the user's message:
-    {user_message}
+   Je te donne les instructions suivantes en entrée :
+   - La grille de jeu et la position des différents fruits : {objects}
+   - Ta position dans la grille : {player}
+   - La position du mouton : {mouton}
+   
+   Détaille les étapes de ton raisonnement.
 
-    
-    You should only respond in the format as described below:
-    RESPONSE FORMAT:
-    THOUGHTS: Based on the information I listed above, in 50 words, do reasoning about what the next task should be.
-    COMMAND: The next COMMAND. A COMMAND can be composed of one or multiple actions, which are defined above. You can do as many actions as you want in a COMMAND, in any order. Split every action by a single ";" and no space.
-    """
+   Tu dois répondre dans le format suivant.
+   [FORMAT DE REPONSE]
+   THOUGHTS : Avec les informations que je t'ai donnée ci-dessus, décrit ton raisonnement sur la ou les prochaines actions à faire en 50 mots.
+   COMMAND : Les actions à réaliser.
+
+
+   Voici un exemple de réponse :
+   THOUGHTS: Il faut se déplacer sur la case 1,1 et déposer un fruit
+   COMMAND: The next COMMAND. A COMMAND can be composed of one or multiple actions, which are defined above. You can do as many actions as you want in a COMMAND, in any order. Split every action by a single ";" and no space.
+   """
+
     return prompt
 
 # Function to extract the thoughts and command from the text
