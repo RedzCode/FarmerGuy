@@ -93,7 +93,6 @@ class CookoBot(arcade.Window):
             fruit = random.choice(self.objects)
             self.items_on_map[(x, y)] = fruit
 
-        self.send_instruction
         arcade.schedule(self.move_sheep_towards_fruit, MOVE_DELAY_SHEEP)
 
     def on_draw(self):
@@ -405,7 +404,8 @@ class CookoBot(arcade.Window):
             self.do_action(action)
         else :
             print("Stack vide")
-            self.send_instruction
+            time.sleep(3)
+            self.send_instruction()
             return None
         
     def find_closest_fruit(self):
