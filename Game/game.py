@@ -381,7 +381,7 @@ class CookoBot(arcade.Window):
             action = ""
             try:
                 # Demande au LLM de produire la commande
-                prompt = make_prompt(self.text_input.text, self.items_on_map, self.player, self.mouton, self.inventory)
+                prompt = make_prompt(self.text_input.text, self.items_on_map, self.player, self.mouton, self.inventory, self.cage)
                 answer = make_request(prompt)
                 print("--> REPONSE DU LLM\n" + answer)
                 thoughts, action = extract_thoughts_and_command(answer)
@@ -451,6 +451,7 @@ class CookoBot(arcade.Window):
                         del self.items_on_map[closest_fruit]
             if (self.mouton['x'], self.mouton['y']) == (self.cage['x'], self.cage['y']) :
                 self.mouton_move =False
+                print("Le mouton est piégé !! Félicitations !")
 
 
 

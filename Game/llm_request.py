@@ -7,13 +7,16 @@ import time
 # Load the .env file
 dotenv = load_dotenv()
 
-def make_prompt(user_message, objects, player, mouton, inventory):
+def make_prompt(user_message, objects, player, mouton, inventory, cage):
     # Create a prompt
     print(f"User message: {user_message}")
     print(f"Objects: {objects}")
     print(f"Player: {player}")
     print(f"Mouton: {mouton}")
-    prompt = f"""Tu es un fermier qui a pour but d'empêcher le mouton de manger les fruits sur le terrain. Pour cela, tu peux enlever les fruits qui sont sur le chemin du mouton.
+    prompt = f"""Tu es un fermier qui a pour but de piéger le mouton sur la cage. Tant que le mouton n'est pas dans la cage, tu dois l'attirer vers la cage.
+     Pour attirer le mouton vers la cage, tu dois le faire se déplacer vers la cage en mettant des fruits sur le chemin entre le mouton et la cage et un fruit dans la cage. 
+     NE RAMASSE PAS LES FRUITS ETANT DEJA SUR LE CHEMIN ENTRE LE MOUTON ET LA CAGE
+     
 
    Voici l'environnement dans lequel tu te trouves :
    - Tu es dans une grille de 15*15
@@ -21,24 +24,27 @@ def make_prompt(user_message, objects, player, mouton, inventory):
    - Tu peux te déplacer dans n'importe quelle case de cette grille . Pour cela tu peux utiliser la commande : MOVE X,Y . X allant entre 0 et 14 et Y allant entre 0 et 14.
    - Tu peux prendre une pomme dans ton inventaire avec la commande : PICK
    - Tu peux déposer un fruit au sol si tu as un fruit dans ton inventaire et que la case où tu te situe est vide en utilisant la commande : DROP
-   - Ton inventaire peut contenir 3 fruits MAXIMUM, si tu prends un fruit alors que tu en as 3 dans ton inventaire, tu vas ramasser un fruit et en déposer un de ton inventaire
+   - Ton inventaire peut contenir 3 fruits MAXIMUM. Si la taille de ton inventaire est supérieur à 3, tu échanges un fruit au sol avec un de ton inventaire. Cela est inutile, ne le fait pas.
+   - Le mouton se déplace de fruits en fruits en allant au fruit le plus proche de lui.
+   - Pour poser un fruit, il faut que la taille de ton inventaire soit supérieur à 1 et qu'il n'y ait pas de fruit sur ta case. Pour cela, utilise la commande : DROP
 
    Je te donne les instructions suivantes en entrée :
    - La grille de jeu et la position des différents fruits : {objects}
    - Ta position dans la grille : {player}
    - La position du mouton : {mouton}
    - Taille de l'inventaire : {len(inventory)}
+   - Position de la cage : x : {cage['x']}, y : {cage['y']}
    
    Détaille les étapes de ton raisonnement.
 
    Tu dois répondre dans le format suivant.
    [FORMAT DE REPONSE]
    THOUGHTS: Avec les informations que je t'ai donnée ci-dessus, décrit ton raisonnement sur la ou les prochaines actions à faire en 50 mots.
-   COMMAND: Les actions à réaliser.
+   Pour détailler ton raisonnement, commence par regarder la position de la cage, du mouton et ta position. Le but est de rapprocher le mouton de la cage en faisant en sorte que le fruit le plus proche du mouton le rapproche de la cage.
 
 
    Voici un exemple de réponse :
-   THOUGHTS: Il faut se déplacer sur la case 1,1 et déposer un fruit
+   THOUGHTS: La cage est en position (1,2) et il y a déjà un fruit sur cette case. Le mouton est en position (1,8). Je suis en position (1,2). Le fruit le plus proche du mouton est en (2,9). Il n'est pas sur le chemin de la cage ou dans la cage. Je ramasse le fruit en (2,9) et le pose en (1,3) car il n'y a pas de fruit à cette position et que mon inventaire est vide.
    COMMAND: The next COMMAND. A COMMAND can be composed of one or multiple actions, which are defined above. You can do as many actions as you want in a COMMAND, in any order. Split every action by a single ";" and no space.
    """
 
