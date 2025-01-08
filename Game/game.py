@@ -14,6 +14,8 @@ class CookoBot(arcade.Window):
         """Initialisation de la fenêtre de jeu."""
         self.player = None
         self.mouton = None
+        self.cage = None
+        self.mouton_move=True;
         self.inventory = []
         self.objects = ['Banane', 'Pomme', 'Poire']
         self.actions_stack = []
@@ -76,6 +78,9 @@ class CookoBot(arcade.Window):
         x_start_mouton = random.randint(0, NB_TILES - 1)
         y_start_mouton = random.randint(0, NB_TILES - 1)
         self.mouton = {'x': x_start_mouton, 'y': y_start_mouton}  # Position initiale du personnage
+        x_start_cage = random.randint(0, NB_TILES - 1)
+        y_start_cage = random.randint(0, NB_TILES - 1)
+        self.cage = {'x': x_start_cage, 'y': y_start_cage}  # Position initiale de la case
 
         # Chargement des textures
         self.player_texture = arcade.load_texture("images/berger.png")
@@ -85,6 +90,7 @@ class CookoBot(arcade.Window):
             'Poire': arcade.load_texture("images/poire.png")
         }
         self.mouton_texture = arcade.load_texture("images/mouton.png")
+        self.cage_texture = arcade.load_texture("images/cage.png")
 
         # Placement aléatoire des objets sur la carte
         for _ in range(NB_OBJ):  # NB_OBJ objects aléatoires
@@ -132,6 +138,12 @@ class CookoBot(arcade.Window):
             self.mouton['x'] * TILE_SIZE + TILE_SIZE // 2 + PADDING,
             self.mouton['y'] * TILE_SIZE + TILE_SIZE // 2 + PADDING,
             OBJ_SIZE, OBJ_SIZE, self.mouton_texture
+        )
+        # Dessiner la cage
+        arcade.draw_texture_rectangle(
+            self.cage['x'] * TILE_SIZE + TILE_SIZE // 2 + PADDING,
+            self.cage['y'] * TILE_SIZE + TILE_SIZE // 2 + PADDING,
+            OBJ_SIZE, OBJ_SIZE, self.cage_texture
         )
 
 
@@ -406,8 +418,9 @@ class CookoBot(arcade.Window):
             self.do_action(action)
         else :
             print("Stack vide")
-            time.sleep(3)
-            self.send_instruction()
+            if self.llm_activated :
+                time.sleep(3)
+                self.send_instruction()
             return None
         
     def find_closest_fruit(self):
@@ -421,20 +434,24 @@ class CookoBot(arcade.Window):
         return closest_fruit
 
     def move_sheep_towards_fruit(self, delta_time):
-        closest_fruit = self.find_closest_fruit()
-        if closest_fruit:
-            goal_x, goal_y = closest_fruit
+        if( self.mouton_move == True) :
+            closest_fruit = self.find_closest_fruit()
+            if closest_fruit:
+                goal_x, goal_y = closest_fruit
 
-            # Calculate path to the closest fruit
-            self.path_mouton = self.a_star(self.mouton['x'], self.mouton['y'], goal_x, goal_y)
-            if self.path_mouton:
-                # Move sheep along the path
-                next_step = self.path_mouton.pop(0)
-                self.mouton['x'], self.mouton['y'] = next_step
+                # Calculate path to the closest fruit
+                self.path_mouton = self.a_star(self.mouton['x'], self.mouton['y'], goal_x, goal_y)
+                if self.path_mouton:
+                    # Move sheep along the path
+                    next_step = self.path_mouton.pop(0)
+                    self.mouton['x'], self.mouton['y'] = next_step
 
-                # If the sheep reaches the fruit, remove it from the map
-                if (self.mouton['x'], self.mouton['y']) == closest_fruit:
-                    del self.items_on_map[closest_fruit]
+                    # If the sheep reaches the fruit, remove it from the map
+                    if (self.mouton['x'], self.mouton['y']) == closest_fruit:
+                        del self.items_on_map[closest_fruit]
+            if (self.mouton['x'], self.mouton['y']) == (self.cage['x'], self.cage['y']) :
+                self.mouton_move =False
+
 
 
 if __name__ == "__main__":

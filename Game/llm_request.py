@@ -27,14 +27,14 @@ def make_prompt(user_message, objects, player, mouton, inventory):
    - La grille de jeu et la position des différents fruits : {objects}
    - Ta position dans la grille : {player}
    - La position du mouton : {mouton}
-   - Ton inventaire : {inventory}
+   - Taille de l'inventaire : {len(inventory)}
    
    Détaille les étapes de ton raisonnement.
 
    Tu dois répondre dans le format suivant.
    [FORMAT DE REPONSE]
-   THOUGHTS : Avec les informations que je t'ai donnée ci-dessus, décrit ton raisonnement sur la ou les prochaines actions à faire en 50 mots.
-   COMMAND : Les actions à réaliser.
+   THOUGHTS: Avec les informations que je t'ai donnée ci-dessus, décrit ton raisonnement sur la ou les prochaines actions à faire en 50 mots.
+   COMMAND: Les actions à réaliser.
 
 
    Voici un exemple de réponse :
