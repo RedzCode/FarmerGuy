@@ -352,6 +352,8 @@ class CookoBot(arcade.Window):
             actions[action]()
         else:
             print(f"Erreur: Action {action} non valide")
+            time.sleep(3)
+            self.send_instruction()
             return None
 
     def send_instruction(self, event=None):
@@ -367,7 +369,7 @@ class CookoBot(arcade.Window):
             action = ""
             try:
                 # Demande au LLM de produire la commande
-                prompt = make_prompt(self.text_input.text, self.items_on_map, self.player, self.mouton)
+                prompt = make_prompt(self.text_input.text, self.items_on_map, self.player, self.mouton, self.inventory)
                 answer = make_request(prompt)
                 print("--> REPONSE DU LLM\n" + answer)
                 thoughts, action = extract_thoughts_and_command(answer)

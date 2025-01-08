@@ -7,7 +7,7 @@ import time
 # Load the .env file
 dotenv = load_dotenv()
 
-def make_prompt(user_message, objects, player, mouton):
+def make_prompt(user_message, objects, player, mouton, inventory):
     # Create a prompt
     print(f"User message: {user_message}")
     print(f"Objects: {objects}")
@@ -21,11 +21,13 @@ def make_prompt(user_message, objects, player, mouton):
    - Tu peux te déplacer dans n'importe quelle case de cette grille . Pour cela tu peux utiliser la commande : MOVE X,Y . X allant entre 0 et 14 et Y allant entre 0 et 14.
    - Tu peux prendre une pomme dans ton inventaire avec la commande : PICK
    - Tu peux déposer un fruit au sol si tu as un fruit dans ton inventaire et que la case où tu te situe est vide en utilisant la commande : DROP
+   - Ton inventaire peut contenir 3 fruits MAXIMUM, si tu prends un fruit alors que tu en as 3 dans ton inventaire, tu vas ramasser un fruit et en déposer un de ton inventaire
 
    Je te donne les instructions suivantes en entrée :
    - La grille de jeu et la position des différents fruits : {objects}
    - Ta position dans la grille : {player}
    - La position du mouton : {mouton}
+   - Ton inventaire : {inventory}
    
    Détaille les étapes de ton raisonnement.
 
