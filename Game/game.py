@@ -10,7 +10,7 @@ import traceback
 
 class CookoBot(arcade.Window):
     def __init__(self):
-        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, "CookoBot")
+        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, "FarmerGuy")
         """Initialisation de la fenêtre de jeu."""
         self.player = None
         self.mouton = None
